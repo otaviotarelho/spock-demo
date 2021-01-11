@@ -26,7 +26,7 @@ public class UserService {
     }
 
     public User save(User user){
-        user.setId(1L);
+        user.setId(2L);
         return repository.save(user);
     }
 

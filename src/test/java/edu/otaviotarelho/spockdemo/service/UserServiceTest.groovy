@@ -16,7 +16,7 @@ class UserServiceTest extends Specification {
     @Autowired
     private UserRepository repository
 
-    def "Should calculate user hash based on id, name, email, and external-id"() {
+    def "Should calculate user hash based on #id, #user.name, #user.email, and #user.externalId"() {
         when:
         def hash = userService.getUserHash(user)
 
@@ -26,12 +26,15 @@ class UserServiceTest extends Specification {
         where:
         id | user | expectedHash
         1  | User.builder().id(1L).name("Otavio").email("teste@teste.com").externalId("ba2695-867e-4011-8a1d-c0eb83682485").build() | "407b6125f954b3d8f05a121198309a10"
+//      2  | User.builder().id(2L).name("Andre").email("teste2@teste.com").externalId("ba2695-867e-4011-8a1d-c0eb83682485").build() | "407b6125f954b3d8f05a121198309a10"
     }
 
     def "Should save use with hash"() {
         given:
         def user = User.builder().name("Otavio").email("teste@teste.com").externalId("ba2695-867e-4011-8a1d-c0eb83682485").build()
-        repository.save() >>> user
+
+        and:
+        repository.save(_ as User) >>> user
 
         when:
         def userReturnedFromDB = userService.save(user)
@@ -42,7 +45,7 @@ class UserServiceTest extends Specification {
 
     def "Should throw exception using spock"(){
         given:
-        def user = null
+        def user = null as User
 
         when:
         userService.getUser(user)
@@ -52,7 +55,7 @@ class UserServiceTest extends Specification {
         ex.message == "Mensagem"
     }
 
-    def "Should not throw Exception"(){
+    def "Should not throw exception when getUser"(){
         given:
         def user = User.builder().name("Otavio").email("teste@teste.com").externalId("ba2695-867e-4011-8a1d-c0eb83682485").build()
 
@@ -62,4 +65,5 @@ class UserServiceTest extends Specification {
         then:
         notThrown IllegalArgumentException
     }
+
 }
