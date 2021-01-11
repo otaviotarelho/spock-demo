@@ -3,6 +3,7 @@ package edu.otaviotarelho.spockdemo.data;
 import lombok.*;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @Data
 @Builder
@@ -11,6 +12,7 @@ import javax.persistence.Entity;
 @Entity
 public class User {
 
+    @Id
     private Long id;
 
     private String name;

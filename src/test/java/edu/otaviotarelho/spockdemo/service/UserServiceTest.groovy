@@ -1,32 +1,65 @@
 package edu.otaviotarelho.spockdemo.service
 
-
+import edu.otaviotarelho.spockdemo.SpockDemoApplication
 import edu.otaviotarelho.spockdemo.data.User
 import edu.otaviotarelho.spockdemo.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import spock.lang.Specification
 
-@SpringBootTest
+@SpringBootTest(classes = SpockDemoApplication.class)
 class UserServiceTest extends Specification {
 
     @Autowired
-    UserService userService
+    private UserService userService
 
-    UserRepository repository = Mock()
+    @Autowired
+    private UserRepository repository
 
-    def "Should calculate user hash based on id, name, email, and external-id"(){
-        given:
-            def user1 = new User().setId(1).setName("Otavio").setEmail("teste@teste.com").setExternalId("ba2695-867e-4011-8a1d-c0eb83682485").build()
-
+    def "Should calculate user hash based on id, name, email, and external-id"() {
         when:
-            def hash = userService.getUserHash(id)
+        def hash = userService.getUserHash(user)
 
         then:
-            hash == expectedHash
+        hash == expectedHash
 
         where:
-            id | user  | expectedHash
-            1  | user1 | "1f7ec2a9123f06118952d1b5d419b026"
+        id | user | expectedHash
+        1  | User.builder().id(1L).name("Otavio").email("teste@teste.com").externalId("ba2695-867e-4011-8a1d-c0eb83682485").build() | "407b6125f954b3d8f05a121198309a10"
+    }
+
+    def "Should save use with hash"() {
+        given:
+        def user = User.builder().name("Otavio").email("teste@teste.com").externalId("ba2695-867e-4011-8a1d-c0eb83682485").build()
+        repository.save() >>> user
+
+        when:
+        def userReturnedFromDB = userService.save(user)
+
+        then:
+        userReturnedFromDB.id == user.id
+    }
+
+    def "Should throw exception using spock"(){
+        given:
+        def user = null
+
+        when:
+        userService.getUser(user)
+
+        then:
+        IllegalArgumentException ex = thrown()
+        ex.message == "Mensagem"
+    }
+
+    def "Should not throw Exception"(){
+        given:
+        def user = User.builder().name("Otavio").email("teste@teste.com").externalId("ba2695-867e-4011-8a1d-c0eb83682485").build()
+
+        when:
+        userService.getUser(user)
+
+        then:
+        notThrown IllegalArgumentException
     }
 }
